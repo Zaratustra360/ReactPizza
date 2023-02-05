@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { Categories } from "../components/Categories/Categories";
 import { Sort } from "../components/Sort/Sort";
 import Skeleton from "../components/Pizza/Skeleton";
 import { Pizza } from "../components/Pizza/Pizza";
+import { SearchContext } from "../App";
 
 export const Home = () => {
-  const [pizzaArray, setPizzaArray] = useState({});
+  const [pizzaArray, setPizzaArray] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Category
@@ -19,6 +20,8 @@ export const Home = () => {
     sortProperty: "rating",
   });
   // End Sort
+  //Search pizzs
+  const { searchPizza, setSearchPizza } = useContext(SearchContext);
 
   //Сортировка
   const getPizzas = async () => {
@@ -27,9 +30,10 @@ export const Home = () => {
     const sortBy = sortType.sortProperty.replace("-", "");
     const order = sortType.sortProperty.includes("-") ? "asc" : "desc";
     const category = categoryId > 0 ? `category=${categoryId}` : "";
+    const search = searchPizza ? `&search=${searchPizza}` : "";
 
     const response = await fetch(
-      `https://63da8e5cb28a3148f68a4b0d.mockapi.io/items?${category}&sortBy=${sortBy}&order=${order}`
+      `https://63da8e5cb28a3148f68a4b0d.mockapi.io/items?${category}&sortBy=${sortBy}&order=${order}${search}`
     );
 
     const data = await response.json();
@@ -40,8 +44,14 @@ export const Home = () => {
   useEffect(() => {
     getPizzas();
     window.scrollTo(0, 0);
-  }, [categoryId, sortType]);
+  }, [categoryId, sortType, searchPizza]);
   // Конец сортировки
+
+  //Render Pizzas and Skeletons
+
+  const pizzas = pizzaArray.map((obj, i) => {
+    return <Pizza key={i} {...obj} />;
+  });
   return (
     <>
       <div className="content__top">
@@ -57,9 +67,7 @@ export const Home = () => {
           ? [...new Array(6)].map((item, i) => {
               return <Skeleton key={i} />;
             })
-          : pizzaArray.map((obj, i) => {
-              return <Pizza key={i} {...obj} />;
-            })}
+          : pizzas}
       </div>
     </>
   );

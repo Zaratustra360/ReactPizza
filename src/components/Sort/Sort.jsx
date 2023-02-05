@@ -12,7 +12,7 @@ export const Sort = ({ value, onChangeSort }) => {
     { name: "алфавиту (DESC)", sortProperty: "-title" },
   ];
 
-  console.log(value);
+
   const onClickListItem = (i) => {
     onChangeSort(i);
     setOpen(false);
